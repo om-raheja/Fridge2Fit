@@ -128,27 +128,34 @@
 			}
 
 			async function generateIngredients() {
-			  // Get all input elements inside the div
-			  const inputs = editableClassesDiv.querySelectorAll("input");
+				// Get all input elements inside the div
+				const inputs = editableClassesDiv.querySelectorAll("input");
 
-			  // Initialize an empty string to hold the input values
-			  let values = "";
+				// Initialize an empty string to hold the input values
+				let values = "";
 
-			  // Check if there are any input elements
-			  if (inputs.length === 0) {
-				return; // Exit the function silently if there are no input elements
-			  }
-
-			  // Loop through the input elements and add their values to the string
-			  inputs.forEach((input) => {
-				if (values !== "") {
-				  values += ", ";
+				// Check if there are any input elements
+				if (inputs.length === 0) {
+					return; // Exit the function silently if there are no input elements
 				}
-				values += input.value;
-			  });
 
-			  // Alert the input values
-			  alert(values);
+				// Loop through the input elements and add their values to the string
+				inputs.forEach((input) => {
+					if (values !== "") {
+						values += ", ";
+					}
+					values += input.value;
+				});
+
+				// Alert the input values
+				const output = await createInference(values);
+
+				// Create a new div element to hold the output
+				const outputDiv = document.createElement("div");
+				outputDiv.textContent = output;
+
+				// Add the output div to the page
+				document.body.appendChild(outputDiv);
 			}
 		</script>
 	</body>
