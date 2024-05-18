@@ -121,7 +121,7 @@
 
 				const data = await response.json();
 				const content = data.choices[0].message.content;
-				return `<p>${content}</p>`;
+				return content;
 			  } catch (error) {
 				return `<p>Error: ${error.message}</p>`;
 			  }
