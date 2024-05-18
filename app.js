@@ -31,6 +31,21 @@ app.get('/script.js', (req, res) => {
 
 });
 
+app.get('/YOUR_IMAGE.jpg', (req, res) => {
+  const imagePath = __dirname +  '/static/YOUR_IMAGE.jpg';
+  const imageStats = fs.statSync(imagePath);
+  const fileSize = imageStats.size;
+  const imageType = 'image/jpeg';  
+
+  // Set the 'Content-Type' header with the correct MIME type
+  res.setHeader('Content-Type', imageType);
+  // Set the 'Content-Length' header with the file size
+  res.setHeader('Content-Length', fileSize);
+  // Pipe the image file to the response
+  const imageStream = fs.createReadStream(imagePath);
+  imageStream.pipe(res);
+});
+
 app.post('/completions', async (req, res) => {
   try {
     const query = req.body.query;

@@ -6,14 +6,17 @@
 		<title>Upload Image</title>
 	</head>
 	<body>
-		<input type="file" id="imageInput" accept="image/*" required=""> <button onclick="uploadImage()" id="upload-image-btn">Upload Image</button>
+		<input type="file" id="imageInput" accept="image/*" required=""> <button onclick="uploadImage()" id="upload-image-btn">Submit Image</button>
 		<br><br>
+		<a href="/YOUR_IMAGE.jpg" download="YOUR_IMAGE.jpg" class="download-button">
+			Download Sample
+		</a>
 		<div id="editable-classes"></div>
-		<button id="add-class-btn">Add Class</button>
+		<button id="add-class-btn">Add Ingredient</button>
 		<div id="suggested-classes"></div>
 		<br>
 
-		<button onclick="generateIngredients()">Generate Ingredients</button>
+		<button onclick="generateIngredients()">Generate Recipes</button>
 		<script src="/script.js"></script>
 	</body>
 </html>
