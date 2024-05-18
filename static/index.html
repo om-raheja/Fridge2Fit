@@ -6,12 +6,19 @@
 		<title>Upload Image</title>
 	</head>
 	<body>
-		<input type="file" id="imageInput" accept="image/*" required> <button onclick="uploadImage()">Upload Image</button>
+		<input type="file" id="imageInput" accept="image/*" required=""> <button onclick="uploadImage()">Upload Image</button>
 		<br><br>
 		<div id="editable-classes"></div>
 		<button id="add-class-btn">Add Class</button>
 		<div id="suggested-classes"></div>
+		<br>
+
+		<button onclick="generateIngredients()">Generate Ingredients</button>
 		<script>
+			const editableClassesDiv = document.getElementById("editable-classes");
+			const suggestedClassesDiv = document.getElementById("suggested-classes");
+			const addClassBtn = document.getElementById("add-class-btn");
+			
 			const uploadImage = async () => {
 			    const input = document.getElementById('imageInput');
 			    const file = input.files[0];
@@ -32,64 +39,31 @@
 			        console.log(jsonResponse);
 			
 					const classes = jsonResponse.predictions;
-					// classes[12] = { "class": "fishy fish", "confidence": 0.1 } 
 					
-					const editableClassesDiv = document.getElementById("editable-classes");
-					const suggestedClassesDiv = document.getElementById("suggested-classes");
-					const addClassBtn = document.getElementById("add-class-btn");
+					// Remove all underscores
 					
-					// Create input fields for classes with confidence >= 0.5
-					
-					classes.filter((cls) => cls.confidence >= 0.5).forEach((cls) => {
-						const inputField = document.createElement("input");
-						inputField.type = "text";
-						inputField.value = cls.class;
-
-						const closeButton = document.createElement("button");
-						closeButton.style.border = "none";
-						closeButton.style.background = "transparent";
-						closeButton.style.cursor = "pointer";	
-						closeButton.innerHTML = "x";
-
-						closeButton.addEventListener("click", () => {
-							editableClassesDiv.removeChild(inputField);
-							editableClassesDiv.removeChild(br);
-							editableClassesDiv.removeChild(closeButton);
-						});
-									
-						editableClassesDiv.appendChild(closeButton);
-						editableClassesDiv.appendChild(inputField);
-						const br = document.createElement("br");
-						editableClassesDiv.appendChild(br);
-
+					classes.forEach(str => {
+						str.class = str.class.replace(/_/g, ' ');
 					});
-					
+
+					// Create input fields for classes with confidence >= 0.5
+
+					classes.filter((cls) => cls.confidence >= 0.5).forEach((cls) => {
+						addInputField(cls.class);
+			
+					});
 					
 					// Create buttons for classes with confidence < 0.5
 					
 					classes.filter((cls) => cls.confidence < 0.5).forEach((cls) => {
-						const button = document.createElement("button");
-						button.textContent = cls.class;
-						button.onclick = () => {
-						
-							const inputField = document.createElement("input");
-							inputField.type = "text";
-							inputField.value = cls.class;
-							editableClassesDiv.appendChild(inputField);
-							button.remove();
-						};
-						
-						suggestedClassesDiv.appendChild(button);
-					
+						addSuggestion(cls.class);
 					});
+					addSuggestion("salt and pepper");
 					
 					
 					// Add event listener to "Add Class" button
-					
 					addClassBtn.onclick = () => {
-						const inputField = document.createElement("input");
-						inputField.type = "text";
-						editableClassesDiv.appendChild(inputField);
+						addInputField("");
 					};
 			
 				} catch ( exception) {
@@ -97,6 +71,85 @@
 				} 
 			
 			};
+			
+			function addInputField(content) {	
+				const inputField = document.createElement("input");
+				inputField.type = "text";
+				inputField.value = content;
+			
+				const closeButton = document.createElement("button");
+				closeButton.style.border = "none";
+				closeButton.style.background = "transparent";
+				closeButton.style.cursor = "pointer";	
+				closeButton.innerHTML = "x";
+			
+				closeButton.addEventListener("click", () => {
+					editableClassesDiv.removeChild(inputField);
+					editableClassesDiv.removeChild(br);
+					editableClassesDiv.removeChild(closeButton);
+				});
+									
+				editableClassesDiv.appendChild(inputField);
+				editableClassesDiv.appendChild(closeButton);
+				const br = document.createElement("br");
+				editableClassesDiv.appendChild(br);
+			} 
+
+			function addSuggestion(content) {
+				const button = document.createElement("button");
+				button.textContent = content;
+				button.onclick = () => {
+					addInputField(content);
+					button.remove();
+				};
+				suggestedClassesDiv.appendChild(button);
+			} 
+
+			async function createInference(query) {
+			  try {
+				const response = await fetch("/completions", {
+				  method: 'POST',
+				  headers: {
+					'Content-Type': 'application/json'
+				  },
+				  body: JSON.stringify({ query })
+				});
+
+				if (!response.ok) {
+				  throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				const data = await response.json();
+				const content = data.choices[0].message.content;
+				return `<p>${content}</p>`;
+			  } catch (error) {
+				return `<p>Error: ${error.message}</p>`;
+			  }
+			}
+
+			async function generateIngredients() {
+			  // Get all input elements inside the div
+			  const inputs = editableClassesDiv.querySelectorAll("input");
+
+			  // Initialize an empty string to hold the input values
+			  let values = "";
+
+			  // Check if there are any input elements
+			  if (inputs.length === 0) {
+				return; // Exit the function silently if there are no input elements
+			  }
+
+			  // Loop through the input elements and add their values to the string
+			  inputs.forEach((input) => {
+				if (values !== "") {
+				  values += ", ";
+				}
+				values += input.value;
+			  });
+
+			  // Alert the input values
+			  alert(values);
+			}
 		</script>
 	</body>
 </html>
